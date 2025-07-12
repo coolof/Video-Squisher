@@ -1,15 +1,17 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
 import { compressVideo } from './ffmpeg/compressor';
 
 app.whenReady().then(() => {
   const win = new BrowserWindow({
-    width: 920,
+    width: 960,
     height: 600,
     minWidth: 800,
     minHeight: 500,
     frame: false,
     titleBarStyle: 'hiddenInset',
+    fullscreenable: false,
+    backgroundColor: '#0e0f15',
     title: 'Video Squisher',
     //resizable: false,
     webPreferences: {
@@ -52,4 +54,19 @@ ipcMain.handle('compress', async (_event, args) => {
   return await compressVideo(inputPath, outputDir, suffix, percent => {
     _event.sender.send('compress-progress', { file: inputPath, percent });
   });
+});
+
+//Open file location (folder)
+ipcMain.handle('show-in-folder', (_event, filePath: string) => {
+  shell.showItemInFolder(filePath);
+});
+
+//Open file or folder
+ipcMain.handle('open-path', (_event, path: string) => {
+  shell.openPath(path);
+});
+
+//Open url in browser
+ipcMain.handle('open-url', (_event, path: string) => {
+  shell.openExternal(path);
 });

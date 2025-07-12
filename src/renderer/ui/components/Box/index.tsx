@@ -12,7 +12,9 @@ const Box: FC<BoxProps> = ({ number, children, theme = 'default', className }) =
   return (
     <div
       className={classNames(
-        'relativep-6 bg-surface border-2 border-accent relative rounded-lg',
+        'relativep-6 bg-surface relative rounded-lg',
+        'border-2 border-accent',
+        //'ring-2 ring-accent',
         'overflow-hidden',
         className
       )}

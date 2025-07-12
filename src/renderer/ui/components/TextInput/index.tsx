@@ -26,6 +26,9 @@ const TextInput: FC<TextInputProps> = ({
       disabled={disabled}
       className={classNames(
         'bg-surface border-1 border-accent text-white font-base h-10 px-4 rounded-md',
+        'font-medium',
+        //'caret-button-accent',
+        'focus:outline-2 focus:outline-button-accent/40',
         className
       )}
       placeholder={placeholder}

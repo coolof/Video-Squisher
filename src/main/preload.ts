@@ -9,4 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('compress-progress');
     ipcRenderer.on('compress-progress', (_event, data) => callback(data));
   },
+  showInFolder: (filePath: string) => ipcRenderer.invoke('show-in-folder', filePath),
+  openPath: (path: string) => ipcRenderer.invoke('open-path', path),
+  openUrl: (path: string) => ipcRenderer.invoke('open-url', path),
 });
