@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@layer theme, base, components, utilities;
+
+@theme {
+  /* Background */
+  --color-background: #0e0f15;
+
+  /* Surface */
+  --color-surface: #18141f;
+  --color-accent: #4f4466;
+
+  --color-surface-success: #131613;
+  --color-accent-success: #6ed682;
+
+  --color-surface-delete: #1f1415;
+  --color-accent-delete: #664449;
+
+  /* Button */
+  --color-button-surface: #262132;
+  --color-button-accent: #9b6bfb;
+  --color-button-surface-hover: #4f4466; /* samma som accent */
+
+  /* Squish Button */
+  --color-squish-button-surface: #641ff1;
+  --color-squish-button-accent: #9b6bfb;
+  --color-squish-button-glow: #641ff1; /* samma som surface */
+  --color-squish-button-surface-hover: #8447ff;
+  --color-squish-button-surface-disabled: #2f2a3e;
+
+  /* Spacing & Sizes */
+  --spacing-app-width: 920px;
+  --spacing-app-height: 600px;
+  --spacing-box-height: 264px;
+
+  /* Typography */
+  --font-base: 'SF Pro Text', system-ui, sans-serif;
+  --font-display: 'SF Pro Display', system-ui, sans-serif;
+  --text-sm: 0.75rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-number: 8rem;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1.25rem;
+}
+
+/* Themes */
+[data-theme='default'] {
+  --color-surface: #18141f;
+  --color-accent: #4f4466;
+}
+
+[data-theme='success'] {
+  --color-surface: #131613;
+  --color-accent: #6ed682;
+}
+
+[data-theme='delete'] {
+  --color-surface: #1f1415;
+  --color-accent: #664449;
+}
+
+/* Misc variables */
+:root {
+  --button-shadow:
+    inset 0px 0px 0px 1px hsla(0, 0, 100, 0.1), inset 0px 0px 16px hsla(260, 95, 70, 0.1),
+    inset 0px 1px 0px hsla(260, 95, 70, 0.5);
+}
+
+.drag-bar {
+  -webkit-app-region: drag; /* ↔️ gör området draggbart */
+}
+.no-drag {
+  -webkit-app-region: no-drag; /* för knappar inuti drag-baren */
+}
+
+body {
+  @apply bg-background text-white font-base text-base;
+}

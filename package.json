@@ -1,0 +1,30 @@
+{
+  "name": "video-squisher",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/main/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "yarn tsc -p tsconfig.main.json && vite build",
+    "start": "electron dist/main/main.js"
+  },
+  "dependencies": {
+    "classnames": "^2.5.1",
+    "ffmpeg-static": "^5.2.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "@types/ffmpeg-static": "^5.1.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "electron": "^37.2.1",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4"
+  }
+}
