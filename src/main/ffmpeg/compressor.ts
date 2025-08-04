@@ -19,7 +19,7 @@ export async function compressVideo(
   }
 
   return new Promise((resolve, reject) => {
-    const args = ['-y', '-i', input, '-vcodec', 'libx264', '-crf', '28', output];
+    const args = ['-y', '-i', input, '-vcodec', 'libx264', '-crf', '28', '-an', output];
     const ffmpeg = spawn(ffmpegPath!, args);
 
     let duration = 0;

@@ -142,7 +142,7 @@ export function App() {
         />
         <RightConnectrion className="absolute left-[calc(50%-1px)] bottom-18" active />
 
-        <div className="mt-4 flex">
+        {/* <div className="mt-4 flex">
           {status}
 
           {isRunning && (
@@ -154,7 +154,7 @@ export function App() {
               <div className="w-4 h-4 bg-black rounded-sm animate-spin"></div>
             </div>
           )}
-        </div>
+        </div> */}
       </main>
 
       {/* All files modal */}
