@@ -1,40 +1,91 @@
-import { spawn } from 'child_process';
-import ffmpegPath from 'ffmpeg-static';
+import { ChildProcess, spawn } from 'child_process';
 import path from 'path';
+
+let isCancelled = false;
+let currentProcess: ChildProcess | null = null;
+
+export function cancelCompression() {
+  isCancelled = true;
+  currentProcess?.kill('SIGKILL');
+}
+
+const ffmpegPath = require('ffmpeg-static')?.replace('app.asar', 'app.asar.unpacked') || 'ffmpeg';
 
 export async function compressVideo(
   input: string,
   outputDir = '',
   suffix = '-squished',
+  format = 'mp4',
   onProgress?: (percent: number) => void
 ): Promise<string> {
+  isCancelled = false;
+
   const ext = path.extname(input);
   const base = path.basename(input, ext);
-  const filename = `${base}${suffix}${ext}`;
+  const filename = `${base}${suffix}.${format}`;
   const dir = outputDir || path.dirname(input);
   const output = path.join(dir, filename);
 
-  if (!input || typeof input !== 'string') {
-    return Promise.reject(new TypeError(`Ogiltig input: ${input}`));
-  }
+  const args =
+    format === 'mp4'
+      ? [
+          '-y',
+          '-i',
+          input,
+          '-vf',
+          "scale='min(1920,iw)':-2",
+          '-vcodec',
+          'libx264',
+          '-preset',
+          'medium',
+          '-crf',
+          '23',
+          '-movflags',
+          '+faststart',
+          '-an',
+          output,
+        ]
+      : [
+          '-y',
+          '-i',
+          input,
+          '-vf',
+          "scale='min(1920,iw)':-2",
+          '-c:v',
+          'libvpx-vp9',
+          '-b:v',
+          '0',
+          '-crf',
+          '32',
+          '-deadline',
+          'good',
+          '-movflags',
+          '+faststart',
+          '-f',
+          'webm',
+          '-an',
+          output,
+        ];
 
   return new Promise((resolve, reject) => {
-    const args = ['-y', '-i', input, '-vcodec', 'libx264', '-crf', '28', '-an', output];
-    const ffmpeg = spawn(ffmpegPath!, args);
+    const ffmpeg = spawn(ffmpegPath, args);
+    currentProcess = ffmpeg;
 
     let duration = 0;
+    let ffmpegErrors: string[] = [];
 
     ffmpeg.stderr.on('data', data => {
       const msg = data.toString();
 
-      // Hämta total varaktighet (endast en gång)
+      console.error('[ffmpeg]', msg);
+      ffmpegErrors.push(msg);
+
       const durMatch = msg.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
       if (durMatch) {
         const [_, h, m, s] = durMatch;
         duration = +h * 3600 + +m * 60 + +s;
       }
 
-      // Progress
       const timeMatch = msg.match(/time=(\d+):(\d+):(\d+\.\d+)/);
       if (timeMatch && duration > 0) {
         const [_, h, m, s] = timeMatch;
@@ -45,8 +96,16 @@ export async function compressVideo(
     });
 
     ffmpeg.on('close', code => {
-      if (code === 0) resolve(output);
-      else reject(new Error(`ffmpeg exited with code ${code}`));
+      currentProcess = null;
+
+      if (isCancelled) {
+        reject(new Error('Cancelled by user'));
+      } else if (code === 0) {
+        resolve(output);
+      } else {
+        const errorMessage = ffmpegErrors.join('\n') || `ffmpeg exited with code ${code}`;
+        reject(new Error(errorMessage));
+      }
     });
   });
 }

@@ -13,10 +13,10 @@ type SquishButtonProps = {
 
 const SquishButton: FC<SquishButtonProps> = ({ disabled, onClick, className, children }) => {
   const styleClasses = classNames(
-    'flex items-center justify-center font-semibold',
+    'flex items-center justify-center font-semibold text-md',
     'bg-squish-button-surface text-white shadow-(--squish-button-shadow)',
     'hover:bg-squish-button-surface-hover',
-    'disabled:bg-squish-button-surface-disabled disabled:hover:bg-squish-button-surface-disabled disabled:shadow-none disabled:ring-inset disabled:ring-1 disabled:ring-white/10 disabled:font-medium',
+    'disabled:bg-squish-button-surface-disabled disabled:hover:bg-squish-button-surface-disabled disabled:shadow-none disabled:ring-inset disabled:ring-1 disabled:ring-white/10 disabled:font-normal',
     'rounded-md',
     'h-12',
     'px-4',

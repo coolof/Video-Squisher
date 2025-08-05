@@ -1,16 +1,20 @@
 import Box from '@/ui/components/Box';
 import Button from '@/ui/components/Button';
-import { BurgerIcon, FolderIcon } from '@/ui/components/icons';
+import { BurgerIcon, FolderIcon, SelectArrow } from '@/ui/components/icons';
 import { FC } from 'react';
 import folder from '@/assets/folder.png';
+import warning from '@/assets/warning.png';
 import TextInput from '@/ui/components/TextInput';
+import classNames from 'classnames';
 
 type SettingsProps = {
   onClickFiles: () => void;
   onClickFilesList: () => void;
   onClickOutput: () => void;
   onChangeSuffix: (e: any) => void;
+  onChangeFormat?: (e: any) => void;
   textInputValue: string;
+  format?: string;
   files: string[];
   outputDir: string | null;
   disabled?: boolean;
@@ -21,7 +25,9 @@ const Settings: FC<SettingsProps> = ({
   onClickFilesList,
   onClickOutput,
   onChangeSuffix,
+  onChangeFormat,
   textInputValue,
+  format = 'mp4',
   files,
   outputDir,
   disabled,
@@ -32,8 +38,11 @@ const Settings: FC<SettingsProps> = ({
         {files.length > 0 && (
           <>
             <div className="absolute z-10 left-auto right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 pb-16">
-              {files.map(file => (
-                <div className="bg-button-surface/60 backdrop-blur-xl border-1 border-white/10 rounded-md px-2 h-10 overflow-hidden flex items-center justify-end text-lg whitespace-nowrap">
+              {files.map((file, index) => (
+                <div
+                  key={`file-box-${index}`}
+                  className="bg-button-surface/60 backdrop-blur-xl border-1 border-white/10 rounded-md px-2 h-10 overflow-hidden flex items-center justify-end text-lg whitespace-nowrap"
+                >
                   {file}
                 </div>
               ))}
@@ -79,12 +88,29 @@ const Settings: FC<SettingsProps> = ({
         </div>
       </Box>
       <Box number="03" theme="success" className="w-full h-box-height">
+        {format == 'webm' && (
+          <div className="absolute left-2 bottom-27 group">
+            <div
+              className={classNames(
+                'absolute left-0 bottom-full w-[200px] p-2 px-3 font-medium text-sm bg-background ring-1 ring-white/15 rounded',
+                'transition-all duration-300',
+                'opacity-0 translate-y-2 pointer-events-none',
+                'group-hover:opacity-100 group-hover:translate-y-0'
+              )}
+            >
+              Webm compression is much slower than mp4. Output file will be roughly the same size.
+            </div>
+
+            <img src={warning} width={36} height={36} alt="Folder icon" />
+          </div>
+        )}
+
         <div className="font-display font-normal text-lg text-white/60 absolute bottom-20 right-4 left-auto text-right whitespace-nowrap">
           {files.length ? String(files[0]).replace(/\.[^/.]+$/, '') : 'file'}
-          <span className="text-white font-semibold">{textInputValue}</span>.mp4
+          <span className="text-white font-semibold">{textInputValue}</span>.{format}
         </div>
 
-        <div className="absolute top-auto left-0 bottom-0 w-full p-4 flex gap-4">
+        <div className="absolute top-auto left-0 bottom-0 w-full p-4 flex gap-2">
           <TextInput
             value={textInputValue}
             onChange={onChangeSuffix}
@@ -93,6 +119,19 @@ const Settings: FC<SettingsProps> = ({
             placeholder="File suffix"
             theme="default"
           />
+
+          <div className="relative" data-theme="default">
+            <select
+              className="px-3 pr-6 appearance-none h-full border-1 border-accent rounded-md text-sm focus:outline-2 focus:outline-button-accent/40"
+              onChange={onChangeFormat}
+              disabled={disabled}
+            >
+              <option value="mp4">.mp4</option>
+              <option value="webm">.webm</option>
+            </select>
+
+            <SelectArrow className="absolute right-1 top-1/2 -translate-y-1/2" />
+          </div>
         </div>
       </Box>
     </section>

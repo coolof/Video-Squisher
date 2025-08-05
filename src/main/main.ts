@@ -1,8 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
-import { compressVideo } from './ffmpeg/compressor';
-
-const isDev = !app.isPackaged;
+import { cancelCompression, compressVideo } from './ffmpeg/compressor';
 
 app.whenReady().then(() => {
   console.log('howdy from main');
@@ -17,22 +15,19 @@ app.whenReady().then(() => {
     fullscreenable: false,
     backgroundColor: '#0e0f15',
     title: 'Video Squisher',
-    //resizable: false,
+    resizable: false,
     webPreferences: {
-      sandbox: false,
+      //contextIsolation: false,
+      nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-  // win.loadFile(path.join(__dirname, '../renderer/index.html'));
 
-  // if (isDev) {
-  //   win.loadURL('http://localhost:5173'); // Open vite server
-  //   win.webContents.openDevTools();
-  // } else {
-  //   win.loadFile(path.join(__dirname, '../renderer/index.html'));
-  // }
-
-  win.loadFile(path.join(__dirname, '../renderer/index.html'));
+  if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(process.env['ELECTRON_RENDERER_URL']);
+  } else {
+    win.loadFile(path.join(__dirname, '../renderer/index.html'));
+  }
 });
 
 //Select file
@@ -64,8 +59,8 @@ ipcMain.handle('select-outdir', async () => {
 
 //Handle compression of videos
 ipcMain.handle('compress', async (_event, args) => {
-  const { inputPath, outputDir, suffix } = args;
-  return await compressVideo(inputPath, outputDir, suffix, percent => {
+  const { inputPath, outputDir, suffix, format } = args;
+  return await compressVideo(inputPath, outputDir, suffix, format, percent => {
     _event.sender.send('compress-progress', { file: inputPath, percent });
   });
 });
@@ -83,4 +78,9 @@ ipcMain.handle('open-path', (_event, path: string) => {
 //Open url in browser
 ipcMain.handle('open-url', (_event, path: string) => {
   shell.openExternal(path);
+});
+
+//Cancel current job
+ipcMain.handle('cancel-compression', () => {
+  cancelCompression();
 });

@@ -28,7 +28,6 @@ const Button: FC<ButtonProps> = ({
     round ? ' rounded-full' : slim ? 'rounded-sm' : 'rounded-md',
     slim ? 'h-8' : 'h-10',
     iconOnly ? (slim ? 'w-8' : 'w-10') : 'px-4',
-    'button-shadow',
     className
   );
 

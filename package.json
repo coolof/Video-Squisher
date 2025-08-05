@@ -7,12 +7,11 @@
   "type": "commonjs",
   "scripts": {
     "clean": "rm -rf dist && rm -rf out",
-    "watch:main": "tsc -p tsconfig.main.json --watch",
-    "dev:renderer": "vite --force",
-    "watch:renderer": "vite build --watch",
-    "dev": "concurrently -k -n MAIN,RENDERER,ELECTRON -c blue,cyan,green \"yarn watch:main\" \"yarn watch:renderer\" \"wait-on dist/renderer/index.html && electron .\"",
-    "build": "tsc -p tsconfig.main.json && vite build",
-    "make": "yarn build && electron-forge make"
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "make": "yarn build && electron-forge make",
+    "tailwind": "tailwindcss"
   },
   "config": {
     "forge": "./forge.config.js"
@@ -29,13 +28,17 @@
     "@electron-forge/maker-dmg": "^7.8.2",
     "@electron-forge/maker-squirrel": "^7.8.2",
     "@electron-forge/maker-zip": "^7.8.2",
+    "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
     "@types/ffmpeg-static": "^5.1.0",
+    "@types/node": "^24.2.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "concurrently": "^9.2.0",
     "electron": "^37.2.1",
+    "electron-vite": "^4.0.0",
+    "motion": "^12.23.12",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.11",

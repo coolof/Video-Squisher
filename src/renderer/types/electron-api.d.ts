@@ -8,12 +8,18 @@ declare global {
       selectFile: () => Promise<string | null>;
       selectMultipleFiles: () => Promise<string[]>;
       selectOutputDir: () => Promise<string | null>;
-      compress: (args: { inputPath: string; outputDir?: string; suffix: string }) => Promise<void>;
+      compress: (args: {
+        inputPath: string;
+        outputDir?: string;
+        suffix: string;
+        format?: string;
+      }) => Promise<void>;
       onProgress: (callback: (data: { file: string; percent: number }) => void) => void;
       removeProgressListener: () => void;
       showInFolder: (filePath: string) => Promise<void>;
       openPath: (path: string) => Promise<void>;
       openUrl: (path: string) => Promise<void>;
+      cancelCompression: () => void;
     };
   }
 }

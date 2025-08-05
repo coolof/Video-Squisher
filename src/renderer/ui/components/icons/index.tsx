@@ -15,9 +15,9 @@ export const BurgerIcon: FC<iconProps> = ({ className }) => {
       className={classNames('stroke-current', className)}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M4 5H12" stroke-width="1.5" stroke-linecap="round" />
-      <path d="M4 8H12" stroke-width="1.5" stroke-linecap="round" />
-      <path d="M4 11H12" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M4 5H12" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M4 8H12" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M4 11H12" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 };
@@ -91,6 +91,21 @@ export const CheckBigIcon: FC<iconProps> = ({ className }) => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M39 15L21 33L12 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
+
+export const SelectArrow: FC<iconProps> = ({ className }) => {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={classNames('stroke-current', className)}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M5 7L8 10L11 7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };

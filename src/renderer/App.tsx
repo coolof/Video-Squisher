@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import FileRow from './ui/components/fileRow';
 import Box from './ui/components/Box';
 import Button from './ui/components/Button';
@@ -11,11 +11,13 @@ import { BurgerIcon, CheckBigIcon, CrossIcon, FolderIcon } from './ui/components
 import SquishButton from './ui/components/SquishButton';
 import classNames from 'classnames';
 import Settings from './ui/compositions/Settings';
+import { ChildProcess } from 'child_process';
 
 export function App() {
   const [files, setFiles] = useState<string[]>([]);
   const [outputDir, setOutputDir] = useState<string | null>(null);
   const [suffix, setSuffix] = useState('-squished');
+  const [format, setFormat] = useState('mp4');
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [isRunning, setIsRunning] = useState(false);
   const [status, setStatus] = useState('');
@@ -25,6 +27,19 @@ export function App() {
 
   const doneCount = Object.values(progress).filter(p => p === 100).length;
   const totalCount = files.length;
+
+  //Errors
+  const [failedFiles, setFailedFiles] = useState<string[]>([]);
+  const [errorsList, setErrorsList] = useState(false);
+
+  //Cancel
+  //const [isCancelled, setIsCancelled] = useState(false);
+  const isCancelledRef = useRef(false);
+
+  const cancelQueue = () => {
+    window.electronAPI.cancelCompression();
+    isCancelledRef.current = true;
+  };
 
   useEffect(() => {
     window.electronAPI.onProgress(({ file, percent }) => {
@@ -50,8 +65,14 @@ export function App() {
     setIsRunning(true);
     setProgress({}); // rensa progress
     setStatus('Startar komprimering...');
+    setFailedFiles([]);
+    isCancelledRef.current = false;
+
+    const failed: string[] = [];
 
     for (const file of files) {
+      if (isCancelledRef.current) break;
+
       setProgress(prev => ({ ...prev, [file]: 0 }));
       setStatus(`Komprimerar ${file}`);
       try {
@@ -59,13 +80,17 @@ export function App() {
           inputPath: file,
           outputDir: outputDir ?? undefined,
           suffix,
+          format,
         });
         setProgress(prev => ({ ...prev, [file]: 100 }));
       } catch (err) {
         console.error(`Fel vid komprimering av ${file}`, err);
-        setStatus(`Fel: ${file}`);
+        const message = err instanceof Error ? err.message : String(err);
+        failed.push(`${file}: ${message}`);
       }
     }
+
+    setFailedFiles(failed);
 
     setStatus('Alla filer färdiga');
     setIsDone(true);
@@ -81,9 +106,15 @@ export function App() {
     });
   };
 
+  const handleJustClose = () => {
+    setIsDone(false);
+    isCancelledRef.current = false;
+  };
+
   const handleClear = () => {
     setFiles([]);
     setIsDone(false);
+    isCancelledRef.current = false;
   };
 
   const squishButtonLabel = () => {
@@ -108,7 +139,7 @@ export function App() {
         <div className="absolute z-[200] left-0 top-0 w-full h-9 drag-bar bg-surface border-b-1 border-b-accent/50"></div>
 
         <header className="pt-12 flex justify-between mb-8 items-baseline">
-          <h1 className="text-2xl font-semibold">Video Squisher 123</h1>
+          <h1 className="text-2xl font-semibold">Video Squisher</h1>
 
           <img src={graceLogo} width={117} height={24} />
         </header>
@@ -118,10 +149,12 @@ export function App() {
           onClickOutput={handleSelectOutput}
           onClickFilesList={() => setShowFiles(true)}
           onChangeSuffix={e => setSuffix(e.target.value)}
+          onChangeFormat={e => setFormat(e.target.value)}
           files={files}
           outputDir={outputDir}
           textInputValue={suffix}
           disabled={isRunning}
+          format={format}
         />
 
         <SquishButton
@@ -137,24 +170,10 @@ export function App() {
           active={files.length > 0}
         />
         <MiddleConnectrion
-          className="absolute left-1/2 -translate-x-1/2 bottom-18"
+          className="absolute left-1/2 -translate-x-1/2 bottom-18 -translate-y-1"
           active={outputDir !== null}
         />
         <RightConnectrion className="absolute left-[calc(50%-1px)] bottom-18" active />
-
-        {/* <div className="mt-4 flex">
-          {status}
-
-          {isRunning && (
-            <div className="ml-auto flex gap-4">
-              <div>
-                {doneCount} / {totalCount} filer klara
-              </div>
-
-              <div className="w-4 h-4 bg-black rounded-sm animate-spin"></div>
-            </div>
-          )}
-        </div> */}
       </main>
 
       {/* All files modal */}
@@ -186,8 +205,9 @@ export function App() {
           {files.length ? (
             <>
               <div className="flex flex-col border-2 border-accent bg-surface rounded-md overflow-hidden mb-4">
-                {files.map(file => (
+                {files.map((file, index) => (
                   <FileRow
+                    key={`file-${index}`}
                     name={file}
                     progress={progress[file] ?? 0}
                     onDelete={() => handleRemove(file)}
@@ -226,11 +246,12 @@ export function App() {
         </h2>
 
         <div
-          className="absolute top-1/2 left-0 w-full p-6 flex flex-col gap-2 transition-all duration-300"
+          className="absolute top-1/2 left-0 w-full py-6 px-20  flex flex-col gap-2 transition-all duration-300"
           style={{ transform: `translateY(${doneCount * -56}px)` }}
         >
           {files.map((file, index) => (
             <div
+              key={`file-compress-${index}`}
               className={classNames(
                 'relative h-12 px-4 rounded-md overflow-hidden ring-inset ring-2 bg-surface ring-accent',
                 'flex items-center',
@@ -250,7 +271,7 @@ export function App() {
                 style={{ width: `${Math.round(progress[file])}%` }}
                 data-theme="success"
               ></div>
-              <div className="relative max-w-full overflow-ellipsis">{file}</div>
+              <div className="relative max-w-full overflow-ellipsis text-md">{file}</div>
 
               {progress[file] && (
                 <div className="absolute left-auto right-2 top-1/2 -translate-y-1/2 text-sm p-2 bg-surface">
@@ -260,6 +281,19 @@ export function App() {
             </div>
           ))}
         </div>
+
+        {isRunning && (
+          <div
+            className={classNames(
+              'fixed left-0 bottom-0 w-full p-6 pt-20',
+              'bg-linear-to-b from-background/0 via-40% via-background/80 to-background'
+            )}
+          >
+            <Button onClick={cancelQueue} data-theme="delete" className="m-auto">
+              Cancel
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Done */}
@@ -295,13 +329,43 @@ export function App() {
               <CheckBigIcon />
             </div>
 
-            <h2 className="font-display font-semibold text-2xl text-center mb-10 whitespace-nowrap">
-              {files.length > 1 ? (
-                <>All {totalCount} videos squished!</>
-              ) : (
-                'The video was squished!'
+            <div className="mb-10">
+              <h2 className="font-display font-semibold text-2xl text-center whitespace-nowrap">
+                {isCancelledRef.current ? (
+                  <>Cancelled by user</>
+                ) : files.length - failedFiles.length > 1 ? (
+                  <>{totalCount - failedFiles.length} videos squished!</>
+                ) : (
+                  <>
+                    {files.length - failedFiles.length === 0
+                      ? 'We tried to squich the video'
+                      : 'The video was squished!'}
+                  </>
+                )}
+              </h2>
+              {failedFiles.length > 0 && (
+                <h3 className="font-base font-medium text-lg text-center">
+                  {isCancelledRef.current ? (
+                    <>
+                      {doneCount} {doneCount > 1 || doneCount === 0 ? 'files' : 'file'} squished
+                      —{' '}
+                    </>
+                  ) : (
+                    <>
+                      Encountered {failedFiles.length} {failedFiles.length > 1 ? 'files' : 'file'}{' '}
+                      with{' '}
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => setErrorsList(true)}
+                    className="underline underline-offset-4 decoration-red-500 decoration-[8%] decoration-wavy cursor-pointer"
+                  >
+                    {isCancelledRef.current ? 'show log' : 'errors'}
+                  </button>
+                </h3>
               )}
-            </h2>
+            </div>
 
             {outputDir && (
               <Button onClick={() => window.electronAPI.openPath(outputDir)} className="gap-2">
@@ -317,12 +381,41 @@ export function App() {
                 'h-10 border-1 border-accent px-4 rounded-md font-semibold',
                 'hover:bg-button-surface-hover'
               )}
-              onClick={() => setIsDone(false)}
+              onClick={() => handleJustClose()}
             >
               Just close
             </button>
 
             <Button onClick={() => handleClear()}>Close and clear files</Button>
+          </div>
+        </div>
+      )}
+
+      {errorsList && failedFiles.length > 0 && (
+        <div
+          className="fixed z-50 w-full h-full top-0 left-0 bg-background p-6 py-14"
+          data-theme="delete"
+        >
+          <div className="bg-surface p-6 pt-4 rounded-lg border-accent border-2">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg">Errors</h3>
+
+              <Button onClick={() => setErrorsList(false)} iconOnly round slim>
+                <CrossIcon />
+              </Button>
+            </div>
+
+            <ul className="flex flex-col gap-2 font-mono text-sm">
+              {failedFiles.map((msg, i) => (
+                <textarea
+                  readOnly
+                  key={i}
+                  className="border border-accent rounded p-2 font-normal min-h-[5em]"
+                >
+                  {msg}
+                </textarea>
+              ))}
+            </ul>
           </div>
         </div>
       )}
