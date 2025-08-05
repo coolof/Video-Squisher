@@ -82,6 +82,10 @@
   --squishing-shadow: 0px 0px 16px hsla(260, 88, 54, 0.25), 0px 0px 40px hsla(260, 88, 54, 0.4);
 }
 
+.button-shadow {
+  box-shadow: var(--button-shadow) !important;
+}
+
 .drag-bar {
   -webkit-app-region: drag; /* ↔️ gör området draggbart */
 }

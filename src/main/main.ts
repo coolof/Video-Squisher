@@ -2,7 +2,11 @@ import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
 import { compressVideo } from './ffmpeg/compressor';
 
+const isDev = !app.isPackaged;
+
 app.whenReady().then(() => {
+  console.log('howdy from main');
+
   const win = new BrowserWindow({
     width: 960,
     height: 600,
@@ -15,9 +19,19 @@ app.whenReady().then(() => {
     title: 'Video Squisher',
     //resizable: false,
     webPreferences: {
+      sandbox: false,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+  // win.loadFile(path.join(__dirname, '../renderer/index.html'));
+
+  // if (isDev) {
+  //   win.loadURL('http://localhost:5173'); // Open vite server
+  //   win.webContents.openDevTools();
+  // } else {
+  //   win.loadFile(path.join(__dirname, '../renderer/index.html'));
+  // }
+
   win.loadFile(path.join(__dirname, '../renderer/index.html'));
 });
 

@@ -6,13 +6,13 @@
   "main": "dist/main/main.js",
   "type": "commonjs",
   "scripts": {
-    "clean": "rm -rf dist out",
-    "build": "yarn tsc -p tsconfig.main.json && vite build",
-    "start": "electron dist/main/main.js",
-    "forge": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "yarn clean && yarn build && electron-forge make",
-    "publish": "electron-forge publish"
+    "clean": "rm -rf dist && rm -rf out",
+    "watch:main": "tsc -p tsconfig.main.json --watch",
+    "dev:renderer": "vite --force",
+    "watch:renderer": "vite build --watch",
+    "dev": "concurrently -k -n MAIN,RENDERER,ELECTRON -c blue,cyan,green \"yarn watch:main\" \"yarn watch:renderer\" \"wait-on dist/renderer/index.html && electron .\"",
+    "build": "tsc -p tsconfig.main.json && vite build",
+    "make": "yarn build && electron-forge make"
   },
   "config": {
     "forge": "./forge.config.js"
@@ -34,10 +34,13 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "concurrently": "^9.2.0",
     "electron": "^37.2.1",
+    "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "wait-on": "^8.0.4"
   }
 }

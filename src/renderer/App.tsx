@@ -108,7 +108,7 @@ export function App() {
         <div className="absolute z-[200] left-0 top-0 w-full h-9 drag-bar bg-surface border-b-1 border-b-accent/50"></div>
 
         <header className="pt-12 flex justify-between mb-8 items-baseline">
-          <h1 className="text-2xl font-semibold">Video Squisher</h1>
+          <h1 className="text-2xl font-semibold">Video Squisher 123</h1>
 
           <img src={graceLogo} width={117} height={24} />
         </header>

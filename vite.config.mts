@@ -5,8 +5,18 @@ import path from 'node:path';
 
 export default defineConfig({
   root: 'src/renderer',
-  base: './', // 🟢 Så att alla resurser blir relativa till HTML-filen
+  base: './',
   plugins: [react(), tailwind()],
+  optimizeDeps: {
+    exclude: ['tailwindcss'],
+  },
+  css: {
+    devSourcemap: true,
+  },
+  server: {
+    port: 5173,
+    host: true,
+  },
   build: {
     outDir: '../../dist/renderer',
     emptyOutDir: true,
