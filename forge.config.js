@@ -3,6 +3,13 @@ module.exports = {
     icon: './assets/Icon',
     asar: true,
     prune: true,
+    extraResource: ['./resources/ffmpeg/ffmpeg'],
+    ignore: [
+      // Remove ffmpeg from .app
+      /node_modules\/ffmpeg-static(\/.*)?$/,
+      // Remove dev scripts from app
+      /scripts\/copy-ffmpeg\.js$/,
+    ],
   },
   makers: [
     {

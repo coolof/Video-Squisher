@@ -1,4 +1,5 @@
 import { ChildProcess, spawn } from 'child_process';
+import { app } from 'electron';
 import path from 'path';
 
 let isCancelled = false;
@@ -9,7 +10,18 @@ export function cancelCompression() {
   currentProcess?.kill('SIGKILL');
 }
 
-const ffmpegPath = require('ffmpeg-static')?.replace('app.asar', 'app.asar.unpacked') || 'ffmpeg';
+export const getFfmpegPath = () => {
+  const isDev = !app.isPackaged;
+
+  if (isDev) {
+    const ffmpegStatic = require('ffmpeg-static');
+    return ffmpegStatic?.replace('app.asar', 'app.asar.unpacked') || 'ffmpeg';
+  }
+
+  return path.join(process.resourcesPath, 'ffmpeg');
+};
+
+const ffmpegPath = getFfmpegPath();
 
 export async function compressVideo(
   input: string,

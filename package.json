@@ -6,11 +6,12 @@
   "main": "dist/main/main.js",
   "type": "commonjs",
   "scripts": {
-    "clean": "rm -rf dist && rm -rf out",
+    "clean": "rm -rf dist && rm -rf out && rm -rf resources",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
+    "postbuild": "node scripts/copy-ffmpeg.js",
     "preview": "electron-vite preview",
-    "make": "yarn build && electron-forge make",
+    "make": "yarn clean && yarn build && yarn postbuild && electron-forge make",
     "tailwind": "tailwindcss"
   },
   "config": {
