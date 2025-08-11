@@ -1,6 +1,6 @@
 module.exports = {
   packagerConfig: {
-    icon: './assets/Icon',
+    icon: './assets/Icon3D',
     asar: true,
     prune: true,
     extraResource: ['./resources/ffmpeg/ffmpeg'],
